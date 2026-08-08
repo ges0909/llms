@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Format Python on Save",
+      "trigger": "PostFileSave",
+      "description": "Automatically format Python files with ruff when saved",
+      "matcher": "\\.py$",
+      "action": {
+        "type": "command",
+        "command": "cd /home/gerrit.schrader/projekte/llm && uv run ruff format \"$KIRO_FILE_PATH\" && uv run ruff check \"$KIRO_FILE_PATH\" --fix"
+      }
+    }
+  ]
+}
