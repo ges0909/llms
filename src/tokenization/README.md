@@ -23,7 +23,7 @@ Tokenization wandelt Text in Zahlen um – der erste Schritt bei der Verarbeitun
 "Hello" → ["H", "e", "l", "l", "o"] → [7, 4, 11, 11, 14]
 ```
 
-- ✅ Kleines Vokabular (~100-300), verarbeitet jeden Text
+- ✅ Kleines Vokabular (~100-300), verarbeitet jedes Zeichen aus dem Trainingsvokabular
 - ❌ Sehr lange Sequenzen, Modell muss Wörter selbst lernen
 
 ### Word-Level
@@ -42,7 +42,8 @@ Tokenization wandelt Text in Zahlen um – der erste Schritt bei der Verarbeitun
 "unbelievable" → ["un", "believ", "able"]
 ```
 
-- ✅ Balancierte Vokabulargröße (~50k), verarbeitet unbekannte Wörter, lernt Morphologie
+- ✅ Balancierte Vokabulargröße (~50k), zerlegt unbekannte Wörter aus bekannten Zeichen
+- ❌ Unbekannte Zeichen werden mit `ValueError` abgelehnt
 - ❌ Tokenisierung nicht immer intuitiv
 
 ## BPE-Algorithmus

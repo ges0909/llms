@@ -43,18 +43,12 @@ class BPETokenizer:
             pairs[pair] += 1
         return pairs
 
-    def _merge_pair(
-        self, tokens: list[str], pair: tuple[str, str], new_token: str
-    ) -> list[str]:
+    def _merge_pair(self, tokens: list[str], pair: tuple[str, str], new_token: str) -> list[str]:
         """Replace all occurrences of a pair with the new token."""
         result: list[str] = []
         i = 0
         while i < len(tokens):
-            if (
-                i < len(tokens) - 1
-                and tokens[i] == pair[0]
-                and tokens[i + 1] == pair[1]
-            ):
+            if i < len(tokens) - 1 and tokens[i] == pair[0] and tokens[i + 1] == pair[1]:
                 result.append(new_token)
                 i += 2
             else:
@@ -71,14 +65,8 @@ class BPETokenizer:
             num_merges: How many merge operations (more = larger vocabulary)
             verbose: Show each merge step
         """
-        words = text.split()
-        tokenized_words = [list(word) + ["</w>"] for word in words]
-
-        all_tokens: list[str] = []
-        for word_tokens in tokenized_words:
-            all_tokens.extend(word_tokens)
-            all_tokens.append(" ")
-        all_tokens = all_tokens[:-1]
+        self.merges = {}
+        all_tokens = list(text)
 
         unique_tokens = sorted(set(all_tokens))
         self.vocab = {token: idx for idx, token in enumerate(unique_tokens)}
@@ -101,7 +89,7 @@ class BPETokenizer:
 
             if verbose:
                 print(
-                    f"Merge #{i+1}: '{pair[0]}' + '{pair[1]}' -> '{new_token}' "
+                    f"Merge #{i + 1}: '{pair[0]}' + '{pair[1]}' -> '{new_token}' "
                     f"(occurred {count}x)"
                 )
 
@@ -119,45 +107,28 @@ class BPETokenizer:
 
     def encode(self, text: str) -> list[int]:
         """Text -> Token IDs using learned merges."""
-        words = text.split()
-        all_token_ids: list[int] = []
+        unknown_characters = sorted(set(text).difference(self.vocab))
+        if unknown_characters:
+            raise ValueError(
+                f"Text contains characters not seen during training: {unknown_characters!r}"
+            )
 
-        for word in words:
-            tokens: list[str] = list(word) + ["</w>"]
+        tokens = list(text)
+        for pair, new_token in self.merges.items():
+            tokens = self._merge_pair(tokens, pair, new_token)
 
-            # Apply merges in training order (dict preserves insertion order)
-            for pair, new_token in self.merges.items():
-                tokens = self._merge_pair(tokens, pair, new_token)
-
-            for token in tokens:
-                if token in self.vocab:
-                    all_token_ids.append(self.vocab[token])
-                else:
-                    for char in token:
-                        if char in self.vocab:
-                            all_token_ids.append(self.vocab[char])
-
-        return all_token_ids
+        return [self.vocab[token] for token in tokens]
 
     def decode(self, token_ids: list[int]) -> str:
         """Token IDs -> Text."""
-        tokens = [self.inverse_vocab[idx] for idx in token_ids]
-        text = "".join(tokens)
-        text = text.replace("</w>", " ").strip()
-        return text
+        return "".join(self.inverse_vocab[idx] for idx in token_ids)
 
     def tokenize(self, text: str) -> list[str]:
         """Returns token strings (not IDs) - useful for understanding."""
-        words = text.split()
-        all_tokens: list[str] = []
-
-        for word in words:
-            tokens: list[str] = list(word) + ["</w>"]
-            for pair, new_token in self.merges.items():
-                tokens = self._merge_pair(tokens, pair, new_token)
-            all_tokens.extend(tokens)
-
-        return all_tokens
+        tokens = list(text)
+        for pair, new_token in self.merges.items():
+            tokens = self._merge_pair(tokens, pair, new_token)
+        return tokens
 
 
 def main() -> None:
@@ -209,7 +180,7 @@ def main() -> None:
        -> "Tokenisierung" = "Token" + "is" + "ierung"
 
     3. Vocabulary stays manageable (~50,000 tokens for GPT)
-       while ANY text can be processed
+         while unknown words can be split into known characters
 
     4. Morphology is often learned:
        -> "-ung", "-er", "-iert" become their own tokens

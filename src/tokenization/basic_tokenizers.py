@@ -16,7 +16,7 @@ class CharacterTokenizer:
     """
     Tokenisiert Text auf Zeichen-Ebene.
 
-    Vorteil: Kann jeden Text verarbeiten (kleine Vokabular-Größe)
+    Vorteil: Kann jedes Zeichen aus dem Trainingsvokabular verarbeiten
     Nachteil: Sequenzen werden sehr lang, Modell muss Wörter "lernen"
     """
 
@@ -35,6 +35,9 @@ class CharacterTokenizer:
 
     def encode(self, text: str) -> list[int]:
         """Text -> List of token IDs."""
+        unknown_chars = sorted(set(text).difference(self.char_to_id))
+        if unknown_chars:
+            raise ValueError(f"Characters not seen during training: {unknown_chars!r}")
         return [self.char_to_id[char] for char in text]
 
     def decode(self, token_ids: list[int]) -> str:
