@@ -10,6 +10,10 @@ dependencies = ["tiktoken>=0.13.0"]
 tokenize-basic = "topic_01_tokenization.basic_tokenizers:main"
 tokenize-bpe = "topic_01_tokenization.bpe_tokenizer:main"
 tokenize-tiktoken = "topic_01_tokenization.tiktoken_comparison:main"
+embed-lookup = "topic_02_embeddings.embedding_lookup:main"
+embed-similarity = "topic_02_embeddings.vector_similarity:main"
+embed-transformer = "topic_02_embeddings.transformer_embeddings:main"
+embed-training = "topic_02_embeddings.embedding_training:main"
 
 [dependency-groups]
 dev = ["pyrefly>=1.2.0", "pytest>=9.2.0", "ruff>=0.16.2"]
@@ -31,4 +35,4 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/topic_01_tokenization"]
+packages = ["src/topic_01_tokenization", "src/topic_02_embeddings"]

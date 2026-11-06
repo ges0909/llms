@@ -43,21 +43,46 @@ Tokenization wandelt Text in Zahlen um – der erste Schritt bei der Verarbeitun
 ```
 
 - ✅ Balancierte Vokabulargröße (~50k), zerlegt unbekannte Wörter aus bekannten Zeichen
-- ❌ Unbekannte Zeichen werden mit `ValueError` abgelehnt
+- ❌ Naives Zeichen-BPE scheitert an unbekannten Zeichen (Byte-Level BPE löst dies)
 - ❌ Tokenisierung nicht immer intuitiv
 
 ## BPE-Algorithmus
 
-Der Algorithmus hinter GPT-2/3/4:
+Der Algorithmus hinter GPT-2/3/4, Llama und modernen LLMs.
 
-1. Starte mit allen Zeichen als Tokens
-2. Finde das häufigste benachbarte Paar
-3. Merge es zu einem neuen Token
-4. Wiederhole bis gewünschte Vokabulargröße erreicht
+### 1. Pre-Tokenization (Regex-Split)
+
+Rohtext wird per Regex in Chunks (Wörter, Zahlen, Satzzeichen) aufgeteilt. Merges finden nur
+innerhalb eines Chunks statt, nicht über Wortgrenzen hinweg. Leerzeichen bleiben am Wortanfang.
+
+### 2. Basisvokabular (Byte-Level)
+
+Moderne LLMs starten mit allen 256 UTF-8-Bytes als Tokens statt Einzelzeichen. Dadurch kann
+jeder beliebige Text ohne Out-of-Vocabulary (OOV) Fehler verarbeitet werden.
+
+### 3. Training (Merges lernen)
+
+1. **Paare zählen**: Zähle alle direkt benachbarten Token-Paare im Korpus.
+2. **Häufigstes Paar ermitteln**: Finde das Paar mit der höchsten Frequenz.
+3. **Merge**: Erstelle ein neues Subword-Token aus diesem Paar.
+4. **Wiederholen**: Wiederhole Schritt 1–3 bis zur gewünschten Vokabulargröße.
+5. **Merge-Regeln speichern**: Speichere die Reihenfolge (Priorität) der Verschmelzungen.
 
 ```
 "l" + "o" → "lo" → "lo" + "w" → "low" → ...
 ```
+
+### 4. Encoding / Inferenz (Text tokenisieren)
+
+1. Text per Pre-Tokenization-Regex aufteilen.
+2. Chunks in Start-Tokens (Bytes oder Zeichen) zerlegen.
+3. Gelernte Merges in exakter Trainingsreihenfolge (nach Priorität) anwenden.
+4. Subword-Tokens über das Vokabular in Zahlen-IDs umwandeln.
+
+### 5. Decoding (IDs zu Text)
+
+1. Token-IDs über das inverse Vokabular in Subword-Strings oder Bytes zurückwandeln.
+2. Chunks aneinanderhängen zum fertigen Text.
 
 ## Wichtige Erkenntnisse
 
@@ -112,10 +137,11 @@ Jedes LLM hat seinen eigenen Tokenizer – es gibt keinen Standard.
 | Modell-Familie | Tokenizer                | Vokabular |
 | -------------- | ------------------------ | --------- |
 | GPT-4/4o       | tiktoken (cl100k, o200k) | 100k–200k |
-| Llama 2/3      | SentencePiece            | 32k       |
-| Mistral        | SentencePiece            | 32k       |
+| Llama 2        | SentencePiece (BPE)      | 32k       |
+| Llama 3        | tiktoken                 | 128k      |
+| Mistral        | SentencePiece (BPE)      | 32k       |
 | Claude         | Eigener (BPE-basiert)    | ~100k     |
-| Gemini         | SentencePiece            | ~256k     |
+| Gemini         | SentencePiece (Unigram)  | ~256k     |
 
 **Warum?** Der Tokenizer wird vor dem Training erstellt. Das Modell lernt Embeddings für genau dieses Vokabular – ein anderer Tokenizer macht es unbrauchbar.
 
@@ -123,11 +149,11 @@ Jedes LLM hat seinen eigenen Tokenizer – es gibt keinen Standard.
 
 ## Lektionen & Ausführen
 
-| Datei                    | Inhalt                   | Befehl                     |
-| ------------------------ | ------------------------ | -------------------------- |
-| `basic_tokenizers.py`    | Character- & Word-Level  | `uv run tokenize-basic`    |
-| `bpe_tokenizer.py`       | BPE selbst implementiert | `uv run tokenize-bpe`      |
-| `tiktoken_comparison.py` | OpenAIs GPT-Tokenizer    | `uv run tokenize-tiktoken` |
+| Datei                                              | Inhalt                   | Befehl                     |
+| -------------------------------------------------- | ------------------------ | -------------------------- |
+| [`basic_tokenizers.py`](basic_tokenizers.py)       | Character- & Word-Level  | `uv run tokenize-basic`    |
+| [`bpe_tokenizer.py`](bpe_tokenizer.py)             | BPE selbst implementiert | `uv run tokenize-bpe`      |
+| [`tiktoken_comparison.py`](tiktoken_comparison.py) | OpenAIs GPT-Tokenizer    | `uv run tokenize-tiktoken` |
 
 ## Ressourcen
 

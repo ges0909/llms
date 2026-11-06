@@ -77,7 +77,7 @@ These are not strictly required to understand the basics, but they are the next 
 | Module                  | Topic                              | Status  |
 | ----------------------- | ---------------------------------- | ------- |
 | `topic_01_tokenization` | Understanding tokenization         | done    |
-| `embeddings`            | Word embeddings and vectors        | planned |
+| `topic_02_embeddings`   | Word embeddings and vectors        | done    |
 | `positional-encoding`   | Order information in sequences     | planned |
 | `attention`             | Attention mechanism                | planned |
 | `transformer`           | Transformer architecture           | planned |
@@ -95,9 +95,16 @@ uv sync              # includes the default dev group (Ruff, Pyrefly, and pytest
 ## Running lessons
 
 ```bash
+# Topic 01: Tokenization
 uv run tokenize-basic    # character and word tokenizers
 uv run tokenize-bpe      # BPE tokenizer
 uv run tokenize-tiktoken # OpenAI tiktoken comparison
+
+# Topic 02: Embeddings
+uv run embed-lookup      # One-Hot vs. Dense Embedding lookup
+uv run embed-similarity  # Cosine-Similarity and vector analogies
+uv run embed-transformer # Transformer embeddings and scaling
+uv run embed-training    # Train embeddings through next-token prediction
 ```
 
 Alternatively, run the scripts directly:
