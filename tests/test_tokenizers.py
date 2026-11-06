@@ -1,7 +1,7 @@
 import unittest
 
-from tokenization.basic_tokenizers import CharacterTokenizer
-from tokenization.bpe_tokenizer import BPETokenizer
+from topic_01_tokenization.basic_tokenizers import CharacterTokenizer
+from topic_01_tokenization.bpe_tokenizer import BPETokenizer
 
 
 class CharacterTokenizerTests(unittest.TestCase):

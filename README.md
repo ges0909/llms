@@ -74,16 +74,16 @@ These are not strictly required to understand the basics, but they are the next 
 
 ## Topics
 
-| Module                | Topic                              | Status  |
-| --------------------- | ---------------------------------- | ------- |
-| `tokenization`        | Understanding tokenization         | done    |
-| `embeddings`          | Word embeddings and vectors        | planned |
-| `positional-encoding` | Order information in sequences     | planned |
-| `attention`           | Attention mechanism                | planned |
-| `transformer`         | Transformer architecture           | planned |
-| `training`            | Next-token prediction and training | planned |
-| `inference`           | Decoding and generation            | planned |
-| `applications`        | RAG and practical LLM usage        | planned |
+| Module                  | Topic                              | Status  |
+| ----------------------- | ---------------------------------- | ------- |
+| `topic_01_tokenization` | Understanding tokenization         | done    |
+| `embeddings`            | Word embeddings and vectors        | planned |
+| `positional-encoding`   | Order information in sequences     | planned |
+| `attention`             | Attention mechanism                | planned |
+| `transformer`           | Transformer architecture           | planned |
+| `training`              | Next-token prediction and training | planned |
+| `inference`             | Decoding and generation            | planned |
+| `applications`          | RAG and practical LLM usage        | planned |
 
 ## Setup
 
@@ -103,7 +103,7 @@ uv run tokenize-tiktoken # OpenAI tiktoken comparison
 Alternatively, run the scripts directly:
 
 ```bash
-uv run python src/tokenization/basic_tokenizers.py
+uv run python src/topic_01_tokenization/basic_tokenizers.py
 ```
 
 ## Tests
